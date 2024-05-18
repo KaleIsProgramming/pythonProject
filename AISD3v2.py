@@ -1,109 +1,104 @@
 import random
 import time
 
-def generate_eulerian_hamiltonian_graph(n, edge_density):
-    graph = {i: [(i + 1) % n] for i in range(n)}
-    for i in range(n):
-        graph[(i + 1) % n].append(i)
-
-    max_possible_edges = (n * (n - 1)) // 2
-    target_edges = int(max_possible_edges * edge_density)
-    current_edges = sum(len(neighbors) for neighbors in graph.values())
-    remaining_edges = target_edges - current_edges
-
-    while remaining_edges > 0:
+# Generowanie grafu o n wierzchołkach i danym współczynniku nasycenia
+def generate_graph(n, density):
+    graph = [[0] * n for _ in range(n)]
+    max_edges = n * (n - 1) // 2
+    num_edges = int(density * max_edges)
+    
+    edges = set()
+    while len(edges) < num_edges:
         u, v = random.sample(range(n), 2)
-        if v not in graph[u]:
-            graph[u].append(v)
-            graph[v].append(u)
-            remaining_edges -= 1
+        if u > v:
+            u, v = v, u
+        edges.add((u, v))
+
+    for u, v in edges:
+        graph[u][v] = graph[v][u] = 1
 
     return graph
 
-def eulerian_cycle(graph, start_vertex):
-    cycle = []
-
-    def euler(v):
-        while graph[v]:
-            w = graph[v].pop()
-            graph[w].remove(v)
-            euler(w)
-        cycle.append(v)
-
-    euler(start_vertex)
-    return cycle[::-1]
-
-def has_eulerian_cycle(graph):
-    return all(len(neighbors) % 2 == 0 for neighbors in graph.values())
-
-def hamiltonian_cycle(graph, start_vertex):
+# Implementacja algorytmu cyklu Eulera bez rekursji
+def eulerian_cycle(graph):
     n = len(graph)
-    path = []
+    start_vertex = random.randint(0, n - 1)
+    stack = [start_vertex]
+    circuit = []
 
-    def hamilton(v):
-        path.append(v)
-        if len(path) == n:
-            if path[0] in graph[path[-1]]:
-                return True
-            else:
-                path.pop()
-                return False
-        for neighbor in graph[v]:
-            if neighbor not in path:
-                if hamilton(neighbor):
-                    return True
-        path.pop()
-        return False
+    while stack:
+        v = stack[-1]
+        if any(graph[v]):
+            u = next(i for i, val in enumerate(graph[v]) if val)
+            stack.append(u)
+            graph[v][u] = graph[u][v] = 0
+        else:
+            circuit.append(stack.pop())
+    
+    return circuit[::-1]
 
-    for start in range(n):
-        if hamilton(start):
-            return True
-    return False
 
-def measure_algorithm_time(graph, algorithm_func, start_vertex):
+# Implementacja algorytmu cyklu Hamiltona z powracaniem
+def hamiltonian_cycle(graph):
+    def backtrack(path, visited):
+        if len(path) == len(graph) and path[-1] in graph[path[0]]:
+            return path + [path[0]]
+        for neighbor in graph[path[-1]]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                new_path = backtrack(path + [neighbor], visited)
+                if new_path:
+                    return new_path
+                visited.remove(neighbor)
+        return None
+    
+    start_vertex = random.randint(0, len(graph) - 1)
+    visited = set([start_vertex])
+    return backtrack([start_vertex], visited)
+
+# Funkcja pomiaru czasu dla algorytmu cyklu Eulera
+def measure_euler_time(graph_func, graph):
     start_time = time.time()
-    algorithm_func(graph, start_vertex)
+    graph_func(graph)
     end_time = time.time()
     return end_time - start_time
 
-# Przygotowanie punktów pomiarowych
-n_values = list(range(5, 51, 3))  # liczba wierzchołków
-edge_density_sparse = 0.3  # współczynnik nasycenia dla grafu rzadkiego
-edge_density_dense = 0.7   # współczynnik nasycenia dla grafu gęstego
-iterations = 15  # liczba iteracji dla każdej wartości n
+# Funkcja pomiaru czasu dla algorytmu cyklu Hamiltona
+def measure_hamilton_time(graph_func, graph):
+    start_time = time.time()
+    graph_func(graph)
+    end_time = time.time()
+    return end_time - start_time
 
-# Pomiar czasu dla grafu rzadkiego
+# Przygotowanie danych pomiarowych
+n_values = list(range(5, 1001, 100))
+density_30 = 0.3
+density_70 = 0.7
+
+euler_times_30 = []
+hamilton_times_30 = []
+euler_times_70 = []
+hamilton_times_70 = []
+
 for n in n_values:
-    graph = generate_eulerian_hamiltonian_graph(n, edge_density_sparse)
-    avg_time_A = 0
-    avg_time_B = 0
+    graph_30 = generate_graph(n, density_30)
+    graph_70 = generate_graph(n, density_70)
+    
+    euler_time_30 = measure_euler_time(eulerian_cycle, graph_30)
+    hamilton_time_30 = measure_hamilton_time(hamiltonian_cycle, graph_30)
+    euler_times_30.append(euler_time_30)
+    hamilton_times_30.append(hamilton_time_30)
+    
+    euler_time_70 = measure_euler_time(eulerian_cycle, graph_70)
+    hamilton_time_70 = measure_hamilton_time(hamiltonian_cycle, graph_70)
+    euler_times_70.append(euler_time_70)
+    hamilton_times_70.append(hamilton_time_70)
 
-    for _ in range(iterations):
-        time_A = measure_algorithm_time(graph, eulerian_cycle, 0)
-        time_B = measure_algorithm_time(graph, hamiltonian_cycle, 0)
-        avg_time_A += time_A
-        avg_time_B += time_B
+# Wyświetlenie wyników
+print("Czasy wykonania dla grafu o 30% nasycenia:")
+print("Algorytm cyklu Eulera:", euler_times_30)
+print("Algorytm cyklu Hamiltona:", hamilton_times_30)
 
-    avg_time_A /= iterations
-    avg_time_B /= iterations
-
-    print(f"Graph with {n} vertices and 30% density - Eulerian Cycle: {avg_time_A} seconds, Hamiltonian Cycle: {avg_time_B} seconds")
-    print("Graph properties - Eulerian:", has_eulerian_cycle(graph), ", Hamiltonian:", hamiltonian_cycle(graph, 0))
-
-# Pomiar czasu dla grafu gęstego
-for n in n_values:
-    graph = generate_eulerian_hamiltonian_graph(n, edge_density_dense)
-    avg_time_A = 0
-    avg_time_B = 0
-
-    for _ in range(iterations):
-        time_A = measure_algorithm_time(graph, eulerian_cycle, 0)
-        time_B = measure_algorithm_time(graph, hamiltonian_cycle, 0)
-        avg_time_A += time_A
-        avg_time_B += time_B
-
-    avg_time_A /= iterations
-    avg_time_B /= iterations
-
-    print(f"Graph with {n} vertices and 70% density - Eulerian Cycle: {avg_time_A} seconds, Hamiltonian Cycle: {avg_time_B} seconds")
-    print("Graph properties - Eulerian:", has_eulerian_cycle(graph), ", Hamiltonian:", hamiltonian_cycle(graph, 0))
+print("\nCzasy wykonania dla grafu o 70% nasycenia:")
+print("Algorytm cyklu Eulera:", euler_times_70)
+print("Algorytm cyklu Hamiltona:", hamilton_times_70)
