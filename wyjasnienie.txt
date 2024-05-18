@@ -1,0 +1,25 @@
+Wyjaśnienia do Hamiltona:
+
+    graph jest reprezentacją macierzy sąsiedztwa grafu. Wartość graph[i][j] wynosi 1, jeśli istnieje krawędź między wierzchołkami i i j, w przeciwnym razie 0.
+
+    path to lista odwiedzonych wierzchołków.
+
+    hamilton(v) to rekurencyjna funkcja, która próbuje znaleźć cykl Hamiltona zaczynając od wierzchołka v.
+
+    Wewnątrz funkcji hamilton(v) dodajemy wierzchołek v do path, a następnie sprawdzamy, czy wszystkie wierzchołki zostały odwiedzone i czy istnieje krawędź powrotna do pierwszego wierzchołka (path[0]).
+
+    Jeśli warunki są spełnione, to cykl Hamiltona został znaleziony, w przeciwnym razie usuwamy ostatnio odwiedzony wierzchołek z path i kontynuujemy przeszukiwanie.
+
+    Funkcja główna hamiltonian_cycle(graph) wywołuje rekurencyjną funkcję hamilton(v) dla każdego wierzchołka startowego, aby sprawdzić, czy cykl Hamiltona istnieje.
+
+Wyjaśnienia do EULERA:
+
+    graph jest reprezentowany jako słownik sąsiedztwa, gdzie graph[v] jest listą wierzchołków sąsiadujących z wierzchołkiem v.
+
+    cycle to lista zawierająca wierzchołki tworzące cykl Eulera.
+
+    euler(v) to rekurencyjna funkcja, która przechodzi przez krawędzie grafu i dodaje wierzchołki do cyklu.
+
+    Funkcja has_eulerian_cycle(graph) sprawdza, czy graf ma cykl Eulera. Wszystkie wierzchołki muszą mieć parzysty stopień, aby istniał cykl Eulera.
+
+    Funkcja eulerian_cycle(graph, start_vertex) uruchamia rekurencyjną funkcję euler(v) od wierzchołka początkowego i zwraca znaleziony cykl Eulera w poprawnej kolejności.
