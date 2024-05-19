@@ -87,7 +87,7 @@ def print_graph(graph):
         print(' '.join(map(str, row)))
 
 # Parametry
-n = 22  # liczba wierzchołków
+n = 212  # liczba wierzchołków
 density_30 = 0.3
 density_70 = 0.7
 
