@@ -23,3 +23,8 @@ Wyjaśnienia do EULERA:
     Funkcja has_eulerian_cycle(graph) sprawdza, czy graf ma cykl Eulera. Wszystkie wierzchołki muszą mieć parzysty stopień, aby istniał cykl Eulera.
 
     Funkcja eulerian_cycle(graph, start_vertex) uruchamia rekurencyjną funkcję euler(v) od wierzchołka początkowego i zwraca znaleziony cykl Eulera w poprawnej kolejności.
+
+
+
+
+    W tym kodzie funkcja generate_eulerian_hamiltonian_graph generuje grafy eulerowskie i hamiltonowskie o zadanym współczynniku nasycenia krawędziami. Najpierw tworzy cykl Hamiltona, a następnie dodaje dodatkowe krawędzie, aby osiągnąć żądany współczynnik nasycenia.
