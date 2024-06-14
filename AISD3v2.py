@@ -28,9 +28,9 @@ def generate_graph_with_cycles(n, density):
 
 def eulerian_cycle(graph):
     n = len(graph)
-    graph_copy = [row[:] for row in graph]  # Tworzymy kopię grafu
-    stack = [0]  # Stos do zarządzania wierzchołkami
-    circuit = deque()  # Lista do przechowywania cyklu Eulera
+    graph_copy = [row[:] for row in graph]  
+    stack = [0] 
+    circuit = deque() 
 
     while stack:
         v = stack[-1]
@@ -58,11 +58,12 @@ def hamiltonian_cycle(graph):
                 if new_path:
                     return new_path
                 visited.remove(neighbor)
-        return None
-    
+        return None if len(path) > len(graph) else []
+
     start_vertex = 0
     visited = set([start_vertex])
     return [v + 1 for v in backtrack([start_vertex], visited)]
+
 
 def measure_time(graph_func, graph):
     start_time = time.time()
@@ -74,7 +75,7 @@ def print_graph(graph):
     for row in graph:
         print(' '.join(map(str, row)))
 
-n = 212
+n = 12
 density_30 = 0.3
 density_70 = 0.7
 

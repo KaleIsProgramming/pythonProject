@@ -49,19 +49,15 @@ def print_cycles(euler_cycle, hamilton_cycle):
     print("Cykl Eulera:", ' '.join(map(str, euler_cycle)))
     print("Cykl Hamiltona:", ' '.join(map(str, hamilton_cycle)))
 
-# Wczytanie danych z pliku
 def read_graph(filename):
     with open(filename, 'r') as file:
         lines = file.readlines()
         graph = [[int(x) for x in line.split()] for line in lines]
     return graph
 
-# Wczytanie grafu z pliku
 graph = read_graph("euler.txt")
 
-# Znalezienie cykli
 euler_time, euler_cycle = measure_time(eulerian_cycle, graph)
 hamilton_time, hamilton_cycle = measure_time(hamiltonian_cycle, graph)
 
-# Wyświetlenie wyników
 print_cycles(euler_cycle, hamilton_cycle)
